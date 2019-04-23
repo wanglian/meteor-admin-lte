@@ -10,22 +10,50 @@ Template.AdminLTE.onCreated(function () {
   var skin = 'blue';
   var fixed = false;
   var sidebarMini = false;
+  var page = null;
 
   if (this.data) {
     skin = this.data.skin || skin;
     fixed = this.data.fixed || fixed;
     sidebarMini = this.data.sidebarMini || sidebarMini;
+    page = this.data.page || page;
   }
 
   self.isReady = new ReactiveVar(false);
   self.style = waitOnCSS(cssUrl());
+
+  if (page == 'login') {
+    $('body').addClass('login-page');
+    self.removeClasses = function () {
+      $('body').removeClass('login-page');
+    }
+    this.autorun(function () {
+      if (self.style.ready()) {
+        self.isReady.set(true);
+      }
+    });
+    return;
+  }
+
   self.skin = waitOnCSS(skinUrl(skin));
 
   fixed && $('body').addClass('fixed');
   sidebarMini && $('body').addClass('sidebar-mini');
+  $('body').addClass('skin-' + skin);
+
   self.removeClasses = function () {
     fixed && $('body').removeClass('fixed');
     sidebarMini && $('body').removeClass('sidebar-mini');
+    $('body').removeClass('skin-' + skin);
+  }
+
+  if ($("body").hasClass('fixed')) {
+    $(".control-sidebar").css({
+      'position': 'fixed',
+      'max-height': '100%',
+      'overflow': 'auto',
+      'padding-bottom': '50px'
+    });
   }
 
   this.autorun(function () {
@@ -38,7 +66,7 @@ Template.AdminLTE.onCreated(function () {
 Template.AdminLTE.onDestroyed(function () {
   this.removeClasses();
   this.style.remove();
-  this.skin.remove();
+  if (this.skin) this.skin.remove();
 });
 
 Template.AdminLTE.helpers({
@@ -71,6 +99,45 @@ Template.AdminLTE.events({
       } else {
         $("body").addClass('sidebar-open');
       }
+    }
+  },
+
+  'click [data-toggle=control-sidebar]': function (e, t) {
+    e.preventDefault();
+    var sidebar = $('.control-sidebar');
+
+    if (sidebar.hasClass('control-sidebar-open')) {
+      $("body").removeClass('control-sidebar-open'); // slide
+      sidebar.removeClass('control-sidebar-open');
+    } else {
+      $("body").addClass('control-sidebar-open'); // slide
+      sidebar.addClass('control-sidebar-open');
+    }
+  },
+
+  // box collapse
+  'click [data-widget=collapse]': function(e, t) {
+    e.preventDefault();
+    var $this = $(e.currentTarget);
+    //Find the box parent
+    var box = $this.parents(".box").first();
+    //Find the body and the footer
+    var box_content = box.find("> .box-body, > .box-footer, > form  >.box-body, > form > .box-footer");
+
+    if (!box.hasClass("collapsed-box")) {
+      //Convert minus into plus
+      $this.children(":first").removeClass("fa-minus").addClass("fa-plus");
+      //Hide the content
+      box_content.slideUp(500, function () {
+        box.addClass("collapsed-box");
+      });
+    } else {
+      //Convert plus into minus
+      $this.children(":first").removeClass("fa-plus").addClass("fa-minus");
+      //Show the content
+      box_content.slideDown(500, function () {
+        box.removeClass("collapsed-box");
+      });
     }
   },
 
@@ -109,9 +176,9 @@ Template.AdminLTE.events({
       checkElement.slideDown('normal', function () {
         //Add the class active to the parent li
         checkElement.addClass('menu-open');
-        parent.find('li.active').removeClass('active');
-        parent_li.addClass('active');
       });
+      parent.find('li.active').removeClass('active');
+      parent_li.addClass('active');
     }
     //if this isn't a link, prevent the page from being redirected
     if (checkElement.is('.treeview-menu')) {
@@ -121,12 +188,12 @@ Template.AdminLTE.events({
 });
 
 function cssUrl () {
-  return Meteor.absoluteUrl('packages/mfactory_admin-lte/css/AdminLTE.min.css');
+  return Meteor.absoluteUrl('packages/mfactory_admin-lte/css/AdminLTE.min.css', {rootUrl: window.location.origin});
 }
 
 function skinUrl (name) {
   return Meteor.absoluteUrl(
-    'packages/mfactory_admin-lte/css/skins/skin-' + name + '.min.css');
+    'packages/mfactory_admin-lte/css/skins/skin-' + name + '.min.css', {rootUrl: window.location.origin});
 }
 
 function waitOnCSS (url, timeout) {

@@ -1,8 +1,8 @@
 Package.describe({
-  name: 'mfactory:admin-lte',
+  name: 'wanglian:admin-lte',
   version: '0.0.2',
   summary: 'AdminLTE dashboard theme',
-  git: 'https://github.com/meteor-factory/meteor-admin-lte.git',
+  git: 'https://github.com/wanglian/meteor-admin-lte.git',
   documentation: 'README.md'
 });
 
@@ -19,7 +19,7 @@ Package.onUse(function(api) {
     'admin-lte.js'
   ], 'client');
 
-  api.addFiles([
+  api.addAssets([
     'css/AdminLTE.min.css',
     'css/skins/skin-black-light.min.css',
     'css/skins/skin-black.min.css',
@@ -33,5 +33,5 @@ Package.onUse(function(api) {
     'css/skins/skin-red.min.css',
     'css/skins/skin-yellow-light.min.css',
     'css/skins/skin-yellow.min.css'
-  ], 'client', { isAsset: true });
+  ], 'client');
 });
