@@ -1,6 +1,6 @@
 Package.describe({
   name: 'wanglian:admin-lte',
-  version: '0.0.2',
+  version: '0.0.4',
   summary: 'AdminLTE dashboard theme',
   git: 'https://github.com/wanglian/meteor-admin-lte.git',
   documentation: 'README.md'
